@@ -12,7 +12,9 @@ import {
 import { Authenticator } from "remix-auth";
 import { sessionStorage } from "./session.server";
 
-export let authenticator = new Authenticator<User>(sessionStorage);
+export const authenticator = new Authenticator<User>(sessionStorage, {
+  sessionKey: "_session",
+});
 
 export const webAuthnStrategy = new WebAuthnStrategy<User>(
   {
