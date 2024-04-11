@@ -2,17 +2,17 @@ import { handleFormSubmit } from "remix-auth-webauthn/browser";
 import { useLoaderData, useActionData } from "@remix-run/react"
 import { Form } from "@remix-run/react"
 import { webAuthnStrategy } from "../authenticator.server";
-import { LoaderArgs, ActionArgs } from "@remix-run/node";
+import { LoaderFunctionArgs, ActionFunctionArgs } from "@remix-run/node";
 import { authenticator } from "../authenticator.server";
 import { sessionStorage } from "../session.server";
 
-export async function loader({ request }: LoaderArgs) {
+export async function loader({ request }: LoaderFunctionArgs) {
   const user = await authenticator.isAuthenticated(request);
 
   return webAuthnStrategy.generateOptions(request, sessionStorage, user);
 }
 
-export async function action({ request }: ActionArgs) {
+export async function action({ request }: ActionFunctionArgs) {
   try {
     await authenticator.authenticate("webauthn", request, {
       successRedirect: "/",

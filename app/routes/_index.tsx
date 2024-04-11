@@ -9,7 +9,7 @@ export function loader({request}: LoaderFunctionArgs ) {
 
 export default function Index() {
   const { user } = useLoaderData<typeof loader>()
-  console.log(user)
+  console.log(typeof user)
   return (
     <div style={{ fontFamily: "system-ui, sans-serif", lineHeight: "1.8" }}>
       <h1>Welcome to Remix Auth WebAuthn 😴😴!</h1>
