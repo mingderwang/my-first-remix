@@ -1,11 +1,16 @@
 // /app/routes/_auth.login.ts
-export async function loader({ request }: LoaderFunctionArgs) {
+import { authenticator } from "../authenticator.server";
+import { LoaderArgs, ActionArgs } from "@remix-run/node";
+import { webAuthnStrategy } from "../authenticator.server";
+import { sessionStorage } from "../session.server";
+
+export async function loader({ request }: LoaderArgs) {
     const user = await authenticator.isAuthenticated(request);
   
     return webAuthnStrategy.generateOptions(request, sessionStorage, user);
   }
   
-  export async function action({ request }: ActionFunctionArgs) {
+  export async function action({ request }: ActionArgs) {
     try {
       await authenticator.authenticate("webauthn", request, {
         successRedirect: "/",

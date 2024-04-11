@@ -1,5 +1,5 @@
 import { LoaderArgs } from "@remix-run/node";
-import { authenticator } from "../auth.server"
+import { authenticator } from "../authenticator.server"
 import { useLoaderData } from "@remix-run/react";
 
 export function loader({request}: LoaderArgs ) {

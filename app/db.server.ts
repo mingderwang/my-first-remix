@@ -1,5 +1,6 @@
 // /app/db.server.ts
 import { type Authenticator } from "remix-auth-webauthn/server";
+import { authenticator } from "./authenticator.server"
 
 export type User = { id: string; username: string };
 

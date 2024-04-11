@@ -1,54 +1,27 @@
-import type { ActionArgs, LoaderArgs } from "@remix-run/node";
-import { json } from "@remix-run/node";
-import { Form, useLoaderData } from "@remix-run/react";
-
-import { auth, sessionStorage } from "~/auth.server";
-
-export const action = async ({ request }: ActionArgs) => {
-  await auth.authenticate("form", request, {
-    successRedirect: "/private",
-    failureRedirect: "/login",
-  });
-};
-
-type LoaderError = { message: string } | null;
-export const loader = async ({ request }: LoaderArgs) => {
-  await auth.isAuthenticated(request, { successRedirect: "/private" });
-  const session = await sessionStorage.getSession(
-    request.headers.get("Cookie"),
-  );
-  const error = session.get(auth.sessionErrorKey) as LoaderError;
-  return json({ error });
-};
-
-export default function Screen() {
-  const { error } = useLoaderData<typeof loader>();
-
+import { handleFormSubmit } from "remix-auth-webauthn/server";
+import { useLoaderData, useActionData } from "@remix-run/react"
+import { Form } from "@remix-run/react"
+export default function Login() {
+  const options = useLoaderData<typeof loader>();
+  const actionData = useActionData<typeof action>();
   return (
-    <Form method="post">
-      {error ? <div>{error.message}</div> : null}
-      <div>
-        <label htmlFor="email">Email</label>
-        <input
-          type="email"
-          name="email"
-          id="email"
-          defaultValue="user@domain.tld"
-        />
-      </div>
-
-      <div>
-        <label htmlFor="password">Password</label>
-        <input
-          type="password"
-          name="password"
-          id="password"
-          defaultValue="test"
-        />
-      </div>
-
-      <button>Log In</button>
+    <Form onSubmit={handleFormSubmit(options)} method="POST">
+      <label>
+        Username
+        <input type="text" name="username" />
+      </label>
+      <button formMethod="GET">Check Username</button>
+      <button
+        name="intent"
+        value="registration"
+        disabled={options.usernameAvailable !== true}
+      >
+        Register
+      </button>
+      <button name="intent" value="authentication">
+        Authenticate
+      </button>
+      {actionData?.error ? <div>{actionData.error.message}</div> : null}
     </Form>
   );
 }
-
