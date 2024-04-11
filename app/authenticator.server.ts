@@ -44,7 +44,37 @@ export const webAuthnStrategy = new WebAuthnStrategy<User>(
     getAuthenticatorById: (id) => getAuthenticatorById(id),
   },
   async function verify({ authenticator, type, username }) {
-    // Verify Implementation Here
+    let user: User | null = null;
+    const savedAuthenticator = await getAuthenticatorById(
+      authenticator.credentialID
+    );
+    if (type === "registration") {
+      // Check if the authenticator exists in the database
+      if (savedAuthenticator) {
+        throw new Error("Authenticator has already been registered.");
+      } else {
+        // Username is null for authentication verification,
+        // but required for registration verification.
+        // It is unlikely this error will ever be thrown,
+        // but it helps with the TypeScript checking
+        if (!username) throw new Error("Username is required.");
+        user = await getUserByUsername(username);
+
+        // Don't allow someone to register a passkey for
+        // someone elses account.
+        if (user) throw new Error("User already exists.");
+
+        // Create a new user and authenticator
+        user = await createUser(username);
+        await createAuthenticator(authenticator, user.id);
+      }
+    } else if (type === "authentication") {
+      if (!savedAuthenticator) throw new Error("Authenticator not found");
+      user = await getUserById(savedAuthenticator.userId);
+    }
+
+    if (!user) throw new Error("User not found");
+    return user;
   }
 );
 
